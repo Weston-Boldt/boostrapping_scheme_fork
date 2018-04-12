@@ -132,7 +132,7 @@ char is_false(object *obj)
 
 char is_true(object *obj)
 {
-    return obj == false;
+    return obj == true;
 }
 
 object *make_character(char value)
