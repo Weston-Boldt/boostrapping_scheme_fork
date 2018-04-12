@@ -8,7 +8,13 @@
 
 // MODEL
 
-typedef enum {BOOLEAN, FIXNUM, CHARACTER, STRING} object_type;
+typedef enum {
+    THE_EMPTY_LIST,
+    BOOLEAN,
+    FIXNUM,
+    CHARACTER,
+    STRING
+} object_type;
 
 typedef struct object
 {
@@ -46,10 +52,16 @@ object *alloc_object(void)
     return obj;
 }
 
-// note from weston:
-//      what does this mean / do?
+// global object's
+object *the_empty_list;
 object *false;
 object *true;
+
+char is_the_empty_list(object *obj)
+{
+    // doesn't need to check it's type
+    return obj == the_empty_list;
+}
 
 char is_boolean(object *obj)
 {
@@ -123,6 +135,9 @@ char is_fixnum(object *obj)
 // makes false and true
 void init(void)
 {
+    the_empty_list = alloc_object();
+    the_empty_list->type = THE_EMPTY_LIST;
+
     false = alloc_object();
     false->type = BOOLEAN;
     false->data.boolean.value = 0;
@@ -315,6 +330,21 @@ object *read(FILE *in)
         buffer[i] = '\0';
         return make_string(buffer);
     }
+    // empty list
+    else if (c == '(')
+    {
+        eat_whitespace(in);
+        c = getc(in);
+        if (c == ')')
+        {
+            return the_empty_list;
+        }
+        else
+        {
+            fprintf(stderr, "unexpected character '%c'. Expecting ')'\n",c);
+            exit(1);
+        }
+    }
     else if (isdigit(c) || (c == '-' && (isdigit(peek(in)))))
     {
         // read a fixnum
@@ -368,6 +398,9 @@ void write(object *obj)
 
     switch (obj->type)
     {
+        case THE_EMPTY_LIST:
+            printf("()");
+            break;
         case BOOLEAN:
             printf("#%c", is_false(obj) ? 'f' : 't');
             break;
