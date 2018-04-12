@@ -181,6 +181,7 @@ object *read_character(FILE *in)
         case EOF:
             fprintf(stderr, "incomplete character literal\n");
             exit(1);
+        // allow literal space and literal newline input
         case 's':
             if (peek(in) == 'p')
             {
@@ -195,6 +196,27 @@ object *read_character(FILE *in)
                 eat_expected_string(in, "ewline");
                 peek_expected_delimiter(in);
                 return make_character('\n');
+            }
+
+        // probably doing a \n \s or \t
+        case '\\':
+            if (peek(in) == 'n')
+            {
+                eat_expected_string(in, "n");
+                return make_character('\n');
+            }
+            else if (peek(in) == 's')
+            {
+                eat_expected_string(in, "s");
+                return make_character(' ');
+            }
+            else if (peek(in) == 't')
+            {
+                eat_expected_string(in, "t");
+                return make_character('\t');
+            }
+            else {
+                fprintf(stderr, "unexpected character %c\n",c); 
             }
             break;
     }
@@ -296,10 +318,12 @@ void write(object *obj)
             // TODO FIXME factor this block into function
             switch (c) {
                 case '\n':
-                    printf("newline");
+                    //printf("newline");
+                    printf("\n");
                     break;
                 case ' ':
-                    printf("space");
+                    //printf("space");
+                    printf(" ");
                     break;
                 default:
                     putchar(c);
