@@ -225,7 +225,7 @@ object *read(FILE *in)
                 return true;
             case 'f':
                 return false;
-            case '\\':
+            case '\'':
                 return read_character(in);
             default:
                 fprintf(stderr, "unkown boolean or character literal\n");
@@ -292,7 +292,7 @@ void write(object *obj)
             break;
         case CHARACTER:
             c = obj->data.character.value;
-            printf("#\\");
+            printf("#\'");
             // TODO FIXME factor this block into function
             switch (c) {
                 case '\n':
